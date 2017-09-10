@@ -37,4 +37,8 @@ const main = ({ path = `${process.cwd()}/dumps`, host = 'mongo', db = 'bm-platfo
   })
 }
 
-main()
+main({
+  path: process.env.BACKUP_PATH,
+  host: process.env.MONGO_HOST,
+  db: process.env.MONGO_DB
+})
