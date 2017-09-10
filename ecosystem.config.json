@@ -1,0 +1,7 @@
+{
+  "apps" : [{
+    "name": "backup",
+    "script": "index.js",
+    "cron_restart": "0 */6 * * *"
+  }]
+}

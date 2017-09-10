@@ -33,7 +33,6 @@ const main = ({ path = `${process.cwd()}/dumps`, host = 'mongo', db = 'bm-platfo
   })
   mongodump.on('close', code => {
     console.log('finish')
-    process.exit(code)
   })
 }
 
