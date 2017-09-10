@@ -1,7 +1,7 @@
 const { spawn } = require('child_process')
 const { format } = require('date-fns')
 
-const main = async (path = `${process.cwd()}/dumps`) => {
+const main = ({ path = `${process.cwd()}/dumps`, host = 'mongo', db = 'bm-platform' } = {}) => {
   const now = format(new Date(), 'YYYY-MM-DD-HH-mm-ss')
   const mongodump = spawn('docker',
     [
@@ -15,9 +15,9 @@ const main = async (path = `${process.cwd()}/dumps`) => {
       'mongo',
       'mongodump',
       '--host',
-      'mongo',
+      host,
       '--db',
-      'bm-platform',
+      db,
       `--out=/data/${now}`
     ], {
       encoding: 'utf8'
