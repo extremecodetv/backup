@@ -4,10 +4,14 @@
   "main": "index.js",
   "author": "Zach Orlovsky <sadorlovsky@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node -r dotenv/config index.js"
+  },
   "devDependencies": {
     "standard": "^10.0.3"
   },
   "dependencies": {
-    "date-fns": "^1.28.5"
+    "date-fns": "^1.28.5",
+    "dotenv": "^4.0.0"
   }
 }

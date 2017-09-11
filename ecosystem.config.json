@@ -2,6 +2,7 @@
   "apps" : [{
     "name": "backup",
     "script": "index.js",
+    "node_args": "-r dotenv/config",
     "cron_restart": "0 */6 * * *"
   }]
 }
