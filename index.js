@@ -63,7 +63,7 @@ const main = async ({ s3 = false, path = `${process.cwd()}/dumps`, host = 'local
         if (err) {
           console.log('ERROR', err)
         } else {
-          console.log('s3 link', link)
+          console.log('finish', `${now}.archive`)
         }
       })
     } else {
