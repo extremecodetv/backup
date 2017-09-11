@@ -1,6 +1,6 @@
 {
   "name": "backup-script",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "main": "index.js",
   "author": "Zach Orlovsky <sadorlovsky@gmail.com>",
   "license": "MIT",
