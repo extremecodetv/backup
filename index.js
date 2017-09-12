@@ -15,6 +15,7 @@ AWS.config.update({
 const cli = meow(`
   Options
     --upload, -u  Upload backup to S3
+    --gzip,   -g  Compresses the dump
 `, {
   alias: {
     u: 'upload',
@@ -46,9 +47,10 @@ const uploadToS3 = (key, body, cb) => {
     })
 }
 
-const main = async ({ s3 = false, path = `${process.cwd()}/dumps`, host = 'localhost', db = 'bm-platform' } = {}) => {
+const main = async ({ s3 = false, gzip = false, path = `${process.cwd()}/dumps`, host = 'localhost', db = 'bm-platform' } = {}) => {
   const now = format(new Date(), 'YYYY-MM-DD-HH-mm-ss')
-  const mongodump = execa.shell(`docker run -i --rm --user \`id -u\` -v ${path}:/data mongo mongodump --host ${host} --db ${db} --archive=/data/${now}.archive`)
+  const backupName = gzip ? `${now}.agz` : `${now}.archive`
+  const mongodump = execa.shell(`docker run -i --rm --user \`id -u\` -v ${path}:/data mongo mongodump --host ${host} --db ${db} ${gzip ? '--gzip' : ''} --archive=/data/${backupName}`)
   mongodump.stderr.setEncoding('utf8')
   mongodump.stderr.on('data', data => {
     console.log(data)
@@ -58,12 +60,12 @@ const main = async ({ s3 = false, path = `${process.cwd()}/dumps`, host = 'local
   })
   mongodump.on('close', code => {
     if (s3) {
-      const body = fs.createReadStream(`${path}/${now}.archive`)
-      uploadToS3(`${now}.archive`, body, (err, link) => {
+      const body = fs.createReadStream(`${path}/${backupName}`)
+      uploadToS3(backupName, body, (err, link) => {
         if (err) {
           console.log('ERROR', err)
         } else {
-          console.log('finish', `${now}.archive`)
+          console.log('finish', backupName)
         }
       })
     } else {
@@ -74,6 +76,7 @@ const main = async ({ s3 = false, path = `${process.cwd()}/dumps`, host = 'local
 
 main({
   s3: cli.flags.upload,
+  gzip: cli.flags.gzip,
   path: process.env.BACKUP_PATH,
   host: process.env.MONGO_HOST,
   db: process.env.MONGO_DB
