@@ -48,7 +48,7 @@ const uploadToS3 = (key, body, cb) => {
 }
 
 const main = async ({ s3 = false, gzip = false, path = `${process.cwd()}/dumps`, host = 'localhost', db = 'bm-platform' } = {}) => {
-  const now = format(new Date(), 'YYYY-MM-DD-HH-mm-ss')
+  const now = format(new Date(), 'YYYY-MM-DD')
   const backupName = gzip ? `${now}.agz` : `${now}.archive`
   const mongodump = execa.shell(`docker run -i --rm --user \`id -u\` -v ${path}:/data mongo mongodump --host ${host} --db ${db} ${gzip ? '--gzip' : ''} --archive=/data/${backupName}`)
   mongodump.stderr.setEncoding('utf8')
