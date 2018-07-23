@@ -1,6 +1,6 @@
 {
   "name": "backup-script",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "main": "index.js",
   "author": "Zach Orlovsky <sadorlovsky@gmail.com>",
   "license": "MIT",
@@ -13,6 +13,7 @@
   "dependencies": {
     "aws-sdk": "^2.112.0",
     "date-fns": "^1.28.5",
+    "del": "^3.0.0",
     "dotenv": "^4.0.0",
     "execa": "^0.8.0",
     "log-update": "^2.1.0",
