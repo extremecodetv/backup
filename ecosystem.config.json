@@ -2,7 +2,7 @@
   "apps" : [{
     "name": "backup",
     "script": "index.js",
-    "args": "--upload --gzip",
+    "args": "--upload --gzip --clean",
     "node_args": "-r dotenv/config",
     "cron_restart": "0 3 * * *"
   }]
