@@ -56,7 +56,7 @@ const cleanDisk = async (path, now) => {
     `${path}/*.*`,
     `!${path}/${now}.*`
   ]
-  await del(pathsToDel)
+  await del(pathsToDel, { force: true, dryRun: true })
 }
 
 const main = async ({ s3 = false, gzip = false, clean = false, path = `${process.cwd()}/dumps`, host = 'localhost', db = 'bm-platform' } = {}) => {
