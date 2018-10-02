@@ -18,11 +18,13 @@ const cli = meow(`
     --upload, -u  Upload backup to S3
     --gzip,   -g  Compresses the dump
     --clean   -c  Clean disk after backup
+    --encrypt <password>  -e  Set password to archive
 `, {
   alias: {
     u: 'upload',
     g: 'gzip',
     c: 'clean',
+    e: 'encrypt',
     h: 'help',
     v: 'version'
   }
@@ -56,10 +58,26 @@ const cleanDisk = async (path, now) => {
     `${path}/*.*`,
     `!${path}/${now}.*`
   ]
+
   await del(pathsToDel, { force: true, dryRun: true })
 }
 
-const main = async ({ s3 = false, gzip = false, clean = false, path = `${process.cwd()}/dumps`, host = 'localhost', db = 'bm-platform' } = {}) => {
+const secure = async (name, backupPath, password) => {
+  try {
+    let enctyptedName = `${name}.zip`
+    zip = await execa.shell(`zip -P ${password} ${enctyptedName} ${backupPath}/${name}`)
+    return enctyptedName
+  } catch (e) {
+    console.log(e)
+    process.exit()
+  }
+}
+
+const main = async ({ s3 = false, gzip = false, clean = false, encrypt = false, path = `${process.cwd()}/dumps`, host = 'localhost', db = 'bm-platform' } = {}) => {
+  if (!encrypt) {
+    throw new Error('Password required')
+  }
+  
   const now = format(new Date(), 'YYYY-MM-DD')
   const backupName = gzip ? `${now}.agz` : `${now}.archive`
   const mongodump = execa.shell(`docker run -i --rm --user \`id -u\` -v ${path}:/data mongo mongodump --host ${host} --db ${db} ${gzip ? '--gzip' : ''} --archive=/data/${backupName} --excludeCollection loggers`)
@@ -71,12 +89,17 @@ const main = async ({ s3 = false, gzip = false, clean = false, path = `${process
     console.log('ERROR', error)
   })
   mongodump.on('close', async code => {
+    if (encrypt) {
+      backupName = await secure(backupName, path, encrypt)
+    }
+
+    let outputPath = `${path}/${backupName}`;
     if (clean) {
       await cleanDisk(path, now)
     }
 
     if (s3) {
-      const body = fs.createReadStream(`${path}/${backupName}`)
+      const body = fs.createReadStream(outputPath)
       uploadToS3(backupName, body, (err, link) => {
         if (err) {
           console.log('ERROR', err)
@@ -94,6 +117,7 @@ main({
   s3: cli.flags.upload,
   gzip: cli.flags.gzip,
   clean: cli.flags.clean,
+  encrypt: cli.flags.encrypt,
   path: process.env.BACKUP_PATH,
   host: process.env.MONGO_HOST,
   db: process.env.MONGO_DB
