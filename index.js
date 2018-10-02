@@ -74,10 +74,6 @@ const secure = async (name, backupPath, password) => {
 }
 
 const main = async ({ s3 = false, gzip = false, clean = false, encrypt = false, path = `${process.cwd()}/dumps`, host = 'localhost', db = 'bm-platform' } = {}) => {
-  if (!encrypt) {
-    throw new Error('Password required')
-  }
-  
   const now = format(new Date(), 'YYYY-MM-DD')
   const backupName = gzip ? `${now}.agz` : `${now}.archive`
   const mongodump = execa.shell(`docker run -i --rm --user \`id -u\` -v ${path}:/data mongo mongodump --host ${host} --db ${db} ${gzip ? '--gzip' : ''} --archive=/data/${backupName} --excludeCollection loggers`)
